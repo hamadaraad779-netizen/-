@@ -1,149 +1,95 @@
 import streamlit as st
 
-# 1. إعدادات الصفحة
-st.set_page_config(page_title="طاقتي الشمسية", page_icon="☀️", layout="wide")
-
-# 2. إدارة البيانات والملف الشخصي (لكي يبقى الكود فعالاً)
-if 'user_data' not in st.session_state: st.session_state.user_data = None
-if 'current_page' not in st.session_state: st.session_state.current_page = "home"
-
-def navigate_to(page): st.session_state.current_page = page
-
-# 3. CSS المطور لضمان "وضوح واحترافية النصوص"
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
-    
-    * { 
-        font-family: 'Cairo', sans-serif; 
-        text-align: right; 
-        direction: rtl; 
-    }
-    
-    .stApp { background-color: #f8f9fa; color: #333; }
-    
-    /* لافتة ترحيبية (Banner) فائقة الوضوح */
-    .hero-banner {
-        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-        padding: 40px;
-        border-radius: 20px;
-        color: white !important; /* ضمان اللون الأبيض للنص */
-        text-align: center;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 20px rgba(0,123,255,0.2);
-    }
-    .hero-banner h3 { 
-        font-weight: 900 !important; 
-        color: white !important; 
-        font-size: 2.2rem; 
-        margin-bottom: 10px; 
-    }
-    .hero-banner p { 
-        color: rgba(255,255,255,0.9) !important; 
-        font-size: 1.2rem; 
-    }
-
-    /* حاوية البطاقات (Grid Containers) لضمان التنسيق */
-    [data-testid="column"] {
-        display: flex;
-        justify-content: center;
-        padding: 10px;
-    }
-
-    /* --- تنسيق البطاقة المربعة (Grid) --- */
-    .menu-card {
-        background: white;
-        border-radius: 25px;
-        padding: 30px;
-        text-align: center;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        border: 1px solid #eee;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        width: 100%;
-        max-width: 250px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .menu-card:hover {
-        transform: translateY(-8px);
-        border-color: #fbbf24;
-        box-shadow: 0 15px 35px rgba(251,191,36,0.2);
-    }
-    
-    .menu-card img {
-        width: 70px; /* زيادة حجم الأيقونة */
-        height: 70px;
-        margin-bottom: 15px;
-    }
-    
-    /* تنسيق الكلمات ليكون "فائق الوضوح" */
-    .menu-card h4 {
-        margin: 0;
-        color: #030712 !important; /* أسود عميق للنص */
-        font-size: 1.2rem !important; /* تكبير الخط */
-        font-weight: 900 !important; /* تغليظ الخط */
-        letter-spacing: 0.5px;
-    }
-
-    /* تنسيق الأزرار الافتراضية لتكون احترافية */
-    .stButton>button {
-        border-radius: 50px !important;
-        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
-        color: #030712 !important;
-        font-weight: 700 !important;
-        border: none !important;
-        padding: 10px 30px !important;
-        transition: 0.3s;
-    }
-    .stButton>button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(251,191,36,0.3);
-    }
-
-    /* إخفاء شريط ستريم ليت للتصميم النظيف */
-    [data-testid="stHeader"], footer {visibility: hidden;}
-    .main .block-container { padding-top: 20px; padding-bottom: 120px; }
-    </style>
-    """, unsafe_allow_html=True)
-
-# 4. محتوى الصفحات
-if st.session_state.current_page == "home":
-    # لافتة ترحيبية مثل التطبيقات العالمية
+# --- محرك الحسابات الهندسي ---
+def build_solar_calculator():
     st.markdown("""
-        <div class="hero-banner">
-            <h3>طاقتي الشمسية</h3>
-            <p>حلول ذكية وهندسية لمنظومتك في العراق</p>
+        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 25px; border-radius: 20px; color: white; margin-bottom: 20px; border-right: 5px solid #fbbf24;">
+            <h2 style="color: #fbbf24; margin:0;">🚀 المحرك الهندسي الذكي</h2>
+            <p style="color: #cbd5e1;">ادخل بيانات الاستهلاك للحصول على أدق النتائج لمنظومتك</p>
         </div>
     """, unsafe_allow_html=True)
 
-    # شبكة الخيارات (Grid) فائقة الوضوح
-    # (الكلمات أصبحت كبيرة، غامقة، وسهلة القراءة على خلفية بيضاء)
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown('<div class="menu-card"><img src="https://cdn-icons-png.flaticon.com/512/3106/3106856.png"><h4>حساب المنظومة</h4></div>', unsafe_allow_html=True)
-        st.button("ابدأ الآن 🚀", key="go_calc", on_click=lambda: navigate_to("calc"))
+    # حاوية الإدخال (تصميم نظيف واحترافي)
+    with st.container():
+        col1, col2 = st.columns(2)
         
-        st.markdown('<div class="menu-card"><img src="https://cdn-icons-png.flaticon.com/512/1067/1067555.png"><h4>طلب صيانة</h4></div>', unsafe_allow_html=True)
-        st.button("احجز موعد", key="go_fix")
+        with col1:
+            st.markdown("### ☀️ أحمال النهار")
+            day_amp = st.number_input("الأمبير المطلوب (تشغيل مباشر):", min_value=1.0, value=10.0, step=1.0, help="كم أمبير تحتاج لتشغيل أجهزتك وقت ذروة الشمس؟")
+            
+            st.markdown("### 🔋 سعة العتاد")
+            panel_cap = st.selectbox("قدرة اللوح المستخدم (واط):", [400, 450, 550, 585, 615, 670, 700], index=2)
 
-    with col2:
-        st.markdown('<div class="menu-card"><img src="https://cdn-icons-png.flaticon.com/512/995/995260.png"><h4>دليل الشركات</h4></div>', unsafe_allow_html=True)
-        st.button("تصفح الشركات", key="go_co")
+        with col2:
+            st.markdown("### 🌙 أحمال الليل")
+            night_amp = st.number_input("الأمبير المطلوب (من البطارية):", min_value=0.0, value=5.0, step=1.0)
+            hours = st.select_slider("ساعات تشغيل البطارية المطلوبة:", options=[2, 4, 6, 8, 10, 12], value=4)
 
-        st.markdown('<div class="menu-card"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"><h4>دخول المدير</h4></div>', unsafe_allow_html=True)
-        st.button("الإدارة", key="go_admin")
+    st.write("---")
 
-# الصفحات الفرعية (لكي تبقى فعالة كما طلبت)
-elif st.session_state.current_page == "calc":
-    st.button("⬅️ عودة للرئيسية", on_click=lambda: navigate_to("home"))
-    st.markdown("<h2>🚀 الحاسبة الهندسية</h2>", unsafe_allow_html=True)
-    day_amp = st.number_input("الأمبير المطلوب نهاراً:")
-    st.button("احسب")
+    # زر الحساب السينمائي
+    if st.button("توليد التقرير الهندسي النهائي ✨", use_container_width=True):
+        
+        # 1. حساب الألواح (معادلة الكفاءة 75%)
+        # القدرة الفعلية للوح = القدرة الاسمية * 0.75
+        effective_panel_power = panel_cap * 0.75
+        total_watt_needed = day_amp * 230 # تحويل الأمبير إلى واط (على فولتية 230)
+        panels_count = round(total_watt_needed / effective_panel_power)
+        if panels_count < 1: panels_count = 1
 
-# شريط التنقل السفلي (المحسّن)
-st.markdown("---")
-col_nav1, col_nav2, col_nav3 = st.columns(3)
-with col_nav1: st.button("🏠 الرئيسية", on_click=lambda: navigate_to("home"))
-with col_nav3: st.button("👤 حسابي")
+        # 2. حساب البطاريات (AH) 
+        # (أمبير الليل * 230 فولت * الساعات) / (فولتية النظام 48 * عمق التفريغ 0.8)
+        required_ah = (night_amp * 230 * hours) / (48 * 0.8)
+        
+        # 3. تحديد حجم الإنفيرتر (Inverter)
+        if day_amp <= 15:
+            inv_size = "6.2 kW Hybrid"
+        elif day_amp <= 30:
+            inv_size = "10.2 kW Hybrid"
+        else:
+            inv_size = "12 kW Ultra (Parallel)"
+
+        # 4. تحديد سعة الخزن (kWh)
+        if required_ah < 100:
+            storage_type = "5.12 kWh (Lithium)"
+        elif required_ah <= 200:
+            storage_type = "10.24 kWh (Lithium)"
+        else:
+            storage_type = "15 kWh + (High Capacity)"
+
+        # --- عرض النتائج بتصميم البطاقات الفخمة ---
+        st.markdown("### 📋 التقرير الفني المقترح")
+        
+        res1, res2, res3 = st.columns(3)
+        
+        with res1:
+            st.markdown(f"""
+                <div style="background: white; padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <h1 style="margin:0; color: #007bff;">{panels_count}</h1>
+                    <p style="color: #666; font-weight: bold;">عدد الألواح</p>
+                    <small>سعة {panel_cap} واط</small>
+                </div>
+            """, unsafe_allow_html=True)
+
+        with res2:
+            st.markdown(f"""
+                <div style="background: white; padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <h2 style="margin:0; color: #fbbf24; font-size: 1.5rem;">{inv_size}</h2>
+                    <p style="color: #666; font-weight: bold;">حجم العاكس</p>
+                    <small>نظام Smart Hybrid</small>
+                </div>
+            """, unsafe_allow_html=True)
+
+        with res3:
+            st.markdown(f"""
+                <div style="background: white; padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <h2 style="margin:0; color: #10b981; font-size: 1.5rem;">{storage_type}</h2>
+                    <p style="color: #666; font-weight: bold;">خزن البطاريات</p>
+                    <small>تغطية لـ {hours} ساعات</small>
+                </div>
+            """, unsafe_allow_html=True)
+            
+        st.info(f"💡 نصيحة هندسية: تم احتساب {panels_count} لوح لضمان تشغيل {day_amp} أمبير نهاراً مع تعويض الفقد الحراري في العراق.")
+
+# استدعاء الدالة لتعمل داخل التطبيق
+build_solar_calculator()
