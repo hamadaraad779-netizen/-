@@ -1,112 +1,157 @@
 import streamlit as st
 
-# 1. إعدادات التصميم (UI/UX)
+# 1. إعدادات الصفحة (Flutter Style)
+st.set_page_config(page_title="العراق للطاقة الشمسية", layout="wide")
+
+# 2. إدارة البيانات (عقل التطبيق - Python Logic)
+if 'current_page' not in st.session_state: st.session_state.current_page = "home"
+if 'approved_cos' not in st.session_state:
+    st.session_state.approved_cos = [
+        {"name": "شركة الرافدين للطاقة", "city": "بغداد", "phone": "07801112223"},
+        {"name": "طاقة الجنوب المحدودة", "city": "البصرة", "phone": "07704445556"}
+    ]
+
+def navigate_to(page):
+    st.session_state.current_page = page
+
+# 3. دزاين Flutter (CSS مخصص لجعل الواجهة بيضاء ونصوصها واضحة)
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap');
-    * { font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; }
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+    
+    /* جعل الخط العام أسود للوضوح والخلفية بيضاء */
+    * { font-family: 'Cairo', sans-serif; text-align: right; direction: rtl; }
+    .stApp { background-color: #ffffff; }
 
-    .stApp { background-color: #f4f7f9; }
-
-    /* بانر علوي حديث */
-    .hero-section {
-        background: linear-gradient(135deg, #002b5b 0%, #0056b3 100%);
-        padding: 40px; border-radius: 20px; color: white;
-        text-align: center; margin-bottom: 30px;
+    /* دزاين الكروت (Flutter Cards) */
+    .flutter-card {
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        border-radius: 25px;
+        padding: 30px;
+        color: white !important;
         box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        text-align: center;
     }
+    .flutter-card h1, .flutter-card h2, .flutter-card p { color: white !important; }
 
-    /* تحسين وضوح الخانات */
-    .stNumberInput input {
+    /* تنسيق النصوص البيضاء داخل الأزرار */
+    .stButton > button {
+        background-color: #1a1a1a !important;
+        color: #ffffff !important;
+        border-radius: 15px !important;
+        height: 55px !important;
+        font-weight: 900 !important;
         font-size: 1.2rem !important;
-        font-weight: bold !important;
-        color: #002b5b !important;
+        border: none !important;
+        width: 100% !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
     }
     
+    /* خانات الأرقام (المدخلات) - خلفية بيضاء ونصوص سوداء حادة */
     div[data-baseweb="input"] {
-        border: 2px solid #0056b3 !important;
-        border-radius: 12px !important;
+        background-color: #ffffff !important;
+        border: 2px solid #1976D2 !important;
+        border-radius: 15px !important;
     }
+    input { color: #000000 !important; font-weight: 900 !important; font-size: 1.3rem !important; }
+    label { color: #1a1a1a !important; font-weight: 800 !important; font-size: 1.1rem !important; }
 
-    /* بطاقة النتائج الفورية */
-    .result-card {
-        background: #ffffff;
+    /* المخرجات والنتائج */
+    .success-card {
+        background-color: #e8f5e9;
+        border: 2px solid #2e7d32;
+        padding: 20px;
         border-radius: 20px;
-        padding: 25px;
-        margin-top: 20px;
-        border-right: 10px solid #ffc107;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        color: #1b5e20 !important;
+        font-weight: 800;
     }
 
-    .metric-container {
-        display: flex;
-        justify-content: space-between;
-        padding: 15px 0;
-        border-bottom: 1px solid #eee;
-    }
-
-    .metric-label { font-weight: 600; color: #555; }
-    .metric-value { font-weight: 900; color: #0056b3; font-size: 1.2rem; }
+    /* إخفاء زوائد Streamlit */
+    [data-testid="stHeader"], footer {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
-# 2. واجهة المدخلات
-st.markdown("""
-    <div class="hero-section">
-        <h1 style="color:white; margin:0;">☀️ حاسبة الطاقة الذكية</h1>
-        <p style="color:#e0e7ff;">أدخل بياناتك للحصول على نتائج فورية</p>
-    </div>
-    """, unsafe_allow_html=True)
+# 4. بناء الصفحات (Logic + Design)
 
-col1, col2 = st.columns(2, gap="large")
-
-with col1:
-    st.subheader("⚙️ إعدادات النهار")
-    a_day = st.number_input("الأمبير المطلوب نهاراً:", min_value=0.0, value=10.0, step=0.5)
-    p_watt = st.number_input("قدرة اللوح (500 - 800 واط):", min_value=500, max_value=800, value=550)
-
-with col2:
-    st.subheader("🌙 إعدادات الليل")
-    a_night = st.number_input("الأمبير المطلوب ليلاً:", min_value=0.0, value=5.0, step=0.5)
-    h_night = st.number_input("ساعات التشغيل (كتابة):", min_value=1, max_value=24, value=6)
-
-# 3. الحسابات الفورية (بدون الحاجة لزر إذا أردت سرعة الاستجابة)
-# سنبقي الزر كخيار نهائي لتأكيد "إصدار التقرير"
-st.markdown("---")
-if st.button("إصدار التقرير الفني النهائي ✅", use_container_width=True):
-    # معادلات هندسية بسيطة
-    panels = round((a_day * 230) / p_watt) + 1
-    battery_kwh = (a_night * h_night * 230) / 1000
-    inverter = round(((a_day + a_night) * 230) / 1000) + 1
-
-    st.markdown(f"""
-        <div class="result-card">
-            <h3 style="text-align:center; color:#002b5b;">📋 التقرير الفني المعتمد</h3>
-            
-            <div class="metric-container">
-                <span class="metric-label">🏗️ عدد الألواح المقترح:</span>
-                <span class="metric-value">{panels} لوح (بقدرة {p_watt} واط)</span>
-            </div>
-            
-            <div class="metric-container">
-                <span class="metric-label">🔋 سعة البطاريات المطلوبة:</span>
-                <span class="metric-value">{battery_kwh:.1f} kWh</span>
-            </div>
-            
-            <div class="metric-container">
-                <span class="metric-label">🔌 حجم العاكس (Inverter):</span>
-                <span class="metric-value">{inverter} KVA أو كيلو واط</span>
-            </div>
-            
-            <div class="metric-container" style="border:none;">
-                <span class="metric-label">⏱️ ساعات الاستقلالية:</span>
-                <span class="metric-value">{h_night} ساعة</span>
-            </div>
-            
-            <p style="text-align:center; color:#666; font-size:0.8rem; margin-top:15px;">
-                * تم احتساب النتائج بناءً على فولتية نظام 230V ومعامل فقدان طاقة 15%.
-            </p>
+# --- الصفحة الرئيسية ---
+if st.session_state.current_page == "home":
+    st.markdown("""
+        <div class='flutter-card'>
+            <h1>أهلاً بك، محمد صادق 👋</h1>
+            <p>منصة طاقة العراق - دليلك المتكامل</p>
         </div>
     """, unsafe_allow_html=True)
-else:
-    st.info("💡 قم بتعديل الأرقام أعلاه ثم اضغط على الزر لإظهار النتائج.")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("<h3 style='text-align:center;'>🚀 الخدمات</h3>", unsafe_allow_html=True)
+        st.button("📐 فتح الحاسبة", on_click=navigate_to, args=("calc",))
+        st.button("🔧 طلب صيانة")
+    with col2:
+        st.markdown("<h3 style='text-align:center;'>🏢 الدليل</h3>", unsafe_allow_html=True)
+        st.button("📋 الشركات", on_click=navigate_to, args=("cos_list",))
+        st.button("📝 تسجيل شركة", on_click=navigate_to, args=("cos_reg",))
+
+# --- صفحة الحاسبة (العقل البرمجي) ---
+elif st.session_state.current_page == "calc":
+    st.markdown("<div class='flutter-card'><h2>📐 الحاسبة الهندسية</h2></div>", unsafe_allow_html=True)
+    
+    # مدخلات واضحة جداً
+    amp_day = st.number_input("الاستخدام النهاري (أمبير):", value=10)
+    amp_night = st.number_input("الاستخدام الليلي (أمبير):", value=5)
+    hours = st.number_input("ساعات التشغيل الليلي (اكتب الرقم):", value=6)
+    
+    if st.button("توليد النتائج ⚡"):
+        # المنطق الرياضي (العقل)
+        panels = round(((amp_day * 230) + (amp_night * 230 * 0.2)) / 450) + 2
+        capacity_test = amp_night * hours
+        
+        if capacity_test <= 100: bat = "5 كيلو واط"
+        elif capacity_test <= 200: bat = "10 كيلو واط"
+        else: bat = "15 كيلو واط"
+        
+        st.markdown(f"""
+            <div class='success-card'>
+                ✅ النتائج المقترحة للمنظومة:<br>
+                • الألواح المطلوبة: {panels} لوح (550 واط)<br>
+                • سعة البطارية: {bat}
+            </div>
+        """, unsafe_allow_html=True)
+    
+    st.button("⬅️ عودة للرئيسية", on_click=navigate_to, args=("home",))
+
+# --- دليل الشركات ---
+elif st.session_state.current_page == "cos_list":
+    st.markdown("<div class='flutter-card'><h2>🏢 الشركات المعتمدة</h2></div>", unsafe_allow_html=True)
+    for co in st.session_state.approved_cos:
+        st.markdown(f"""
+            <div style='border:2px solid #1976D2; padding:15px; border-radius:15px; margin-bottom:10px;'>
+                <b style='color:#1976D2;'>{co['name']}</b><br>
+                📍 {co['city']} | 📞 {co['phone']}
+            </div>
+        """, unsafe_allow_html=True)
+    st.button("⬅️ عودة", on_click=navigate_to, args=("home",))
+
+# --- تسجيل الشركات ---
+elif st.session_state.current_page == "cos_reg":
+    st.markdown("<div class='flutter-card'><h2>📝 تسجيل شركة جديدة</h2></div>", unsafe_allow_html=True)
+    with st.form("reg_form"):
+        name = st.text_input("اسم الشركة")
+        city = st.text_input("المحافظة")
+        phone = st.text_input("الهاتف")
+        code = st.text_input("كود الموافقة", type="password")
+        if st.form_submit_button("تفعيل التسجيل"):
+            if code == "1234":
+                st.session_state.approved_cos.append({"name": name, "city": city, "phone": phone})
+                st.success("تم الإضافة!")
+            else: st.error("الكود خاطئ")
+    st.button("⬅️ عودة", on_click=navigate_to, args=("home",))
+
+# 5. شريط التنقل السفلي (Floating Nav Bar)
+st.markdown("<div style='height:80px;'></div>", unsafe_allow_html=True)
+nav = st.columns(4)
+with nav[0]: st.button("🏠", on_click=navigate_to, args=("home",))
+with nav[1]: st.button("📊", on_click=navigate_to, args=("calc",))
+with nav[2]: st.button("🏢", on_click=navigate_to, args=("cos_list",))
+with nav[3]: st.button("👤")
