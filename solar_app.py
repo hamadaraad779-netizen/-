@@ -1,95 +1,142 @@
 import streamlit as st
 
-# --- محرك الحسابات الهندسي ---
-def build_solar_calculator():
-    st.markdown("""
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 25px; border-radius: 20px; color: white; margin-bottom: 20px; border-right: 5px solid #fbbf24;">
-            <h2 style="color: #fbbf24; margin:0;">🚀 المحرك الهندسي الذكي</h2>
-            <p style="color: #cbd5e1;">ادخل بيانات الاستهلاك للحصول على أدق النتائج لمنظومتك</p>
-        </div>
+# 1. إعدادات الصفحة والأيقونة
+st.set_page_config(page_title="طاقتي الشمسية", page_icon="☀️", layout="wide")
+
+# 2. إدارة البيانات (Session State)
+if 'user_data' not in st.session_state: st.session_state.user_data = None
+if 'current_page' not in st.session_state: st.session_state.current_page = "home"
+
+def navigate_to(page): st.session_state.current_page = page
+
+# 3. CSS الفائق (تصميم الموبايل الحديث - نصوص واضحة جداً)
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+    * { font-family: 'Cairo', sans-serif; text-align: right; direction: rtl; }
+    .stApp { background-color: #f0f2f5; color: #1c1e21; }
+    
+    /* لافتة علوية فخمة */
+    .main-banner {
+        background: linear-gradient(135deg, #0062ff 0%, #0041ab 100%);
+        padding: 40px 20px;
+        border-radius: 25px;
+        color: white !important;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 12px 24px rgba(0,98,255,0.2);
+    }
+    .main-banner h1 { font-weight: 900 !important; color: white !important; font-size: 2.5rem; margin:0; }
+
+    /* شبكة الأزرار المربعة (Grid) */
+    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    
+    .card-item {
+        background: white;
+        border-radius: 25px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.04);
+        border: 1.5px solid #ffffff;
+        transition: 0.3s ease-in-out;
+        cursor: pointer;
+    }
+    .card-item:hover { transform: translateY(-10px); border-color: #fbbf24; }
+    .card-item img { width: 65px; height: 65px; margin-bottom: 15px; }
+    .card-item h4 { 
+        color: #050505 !important; 
+        font-weight: 900 !important; 
+        font-size: 1.2rem !important; 
+        margin: 0; 
+    }
+
+    /* شريط التنقل السفلي */
+    .nav-bar {
+        position: fixed; bottom: 0; left: 0; width: 100%;
+        background: white; border-top: 1px solid #e4e6eb;
+        display: flex; justify-content: space-around; padding: 15px 0;
+        z-index: 1000;
+    }
+    
+    /* تحسين شكل الأزرار الأصلية */
+    .stButton>button {
+        width: 100%; border-radius: 15px !important;
+        background: #ffffff !important; color: #0062ff !important;
+        border: 2px solid #0062ff !important; font-weight: 700 !important;
+    }
+    .stButton>button:hover { background: #0062ff !important; color: white !important; }
+
+    [data-testid="stHeader"], footer {visibility: hidden;}
+    .block-container { padding-top: 2rem; padding-bottom: 10rem; }
+    </style>
     """, unsafe_allow_html=True)
 
-    # حاوية الإدخال (تصميم نظيف واحترافي)
+# 4. نظام التسجيل الإجباري (أول مرة فقط)
+if st.session_state.user_data is None:
+    st.markdown("<div class='main-banner'><h1>أهلاً بك في طاقتي</h1><p>سجل معلوماتك للبدء</p></div>", unsafe_allow_html=True)
+    with st.form("reg"):
+        n = st.text_input("الأسم الكامل")
+        p = st.text_input("رقم الهاتف")
+        c = st.selectbox("المحافظة", ["بغداد", "البصرة", "أربيل", "الموصل", "النجف", "كربلاء", "أخرى"])
+        if st.form_submit_button("دخول للمنصة"):
+            if n and p:
+                st.session_state.user_data = {"name": n, "phone": p, "city": c}
+                st.rerun()
+    st.stop()
+
+# 5. محتوى الصفحات
+# --- الصفحة الرئيسية ---
+if st.session_state.current_page == "home":
+    st.markdown("<div class='main-banner'><h1>مرحباً، " + st.session_state.user_data['name'] + "</h1><p>ماذا تريد أن تفعل اليوم؟</p></div>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown('<div class="card-item"><img src="https://cdn-icons-png.flaticon.com/512/3106/3106856.png"><h4>حساب المنظومة</h4></div>', unsafe_allow_html=True)
+        st.button("فتح الحاسبة", key="btn_c", on_click=lambda: navigate_to("calc"))
+        
+        st.markdown('<div class="card-item"><img src="https://cdn-icons-png.flaticon.com/512/1067/1067555.png"><h4>طلب صيانة</h4></div>', unsafe_allow_html=True)
+        st.button("احجز فني", key="btn_f")
+
+    with col2:
+        st.markdown('<div class="card-item"><img src="https://cdn-icons-png.flaticon.com/512/995/995260.png"><h4>دليل الشركات</h4></div>', unsafe_allow_html=True)
+        st.button("تصفح المجهزين", key="btn_co")
+
+        st.markdown('<div class="card-item"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"><h4>الإدارة</h4></div>', unsafe_allow_html=True)
+        st.button("دخول المسؤول", key="btn_a")
+
+# --- صفحة حسابي (تعديل البيانات) ---
+elif st.session_state.current_page == "profile":
+    st.markdown("<h2>👤 معلومات حسابي</h2>", unsafe_allow_html=True)
     with st.container():
-        col1, col2 = st.columns(2)
+        st.session_state.user_data['name'] = st.text_input("الأسم", st.session_state.user_data['name'])
+        st.session_state.user_data['phone'] = st.text_input("الهاتف", st.session_state.user_data['phone'])
+        st.session_state.user_data['city'] = st.selectbox("المحافظة", ["بغداد", "البصرة", "أربيل", "أخرى"], index=0)
+        if st.button("حفظ التعديلات"): st.success("تم الحفظ بنجاح!")
+
+# --- صفحة الحاسبة الهندسية (المعادلات الدقيقة) ---
+elif st.session_state.current_page == "calc":
+    st.markdown("<h2>🚀 الحاسبة الهندسية المطورة</h2>", unsafe_allow_html=True)
+    with st.expander("أدخل بيانات الاستهلاك", expanded=True):
+        d_amp = st.number_input("الأمبير المطلوب نهاراً:", value=10.0)
+        n_amp = st.number_input("الأمبير المطلوب ليلاً:", value=5.0)
+        hrs = st.select_slider("ساعات تشغيل البطارية:", options=[2,4,6,8,10,12], value=4)
+        p_watt = st.selectbox("قدرة اللوح:", [400, 550, 585, 670], index=1)
         
-        with col1:
-            st.markdown("### ☀️ أحمال النهار")
-            day_amp = st.number_input("الأمبير المطلوب (تشغيل مباشر):", min_value=1.0, value=10.0, step=1.0, help="كم أمبير تحتاج لتشغيل أجهزتك وقت ذروة الشمس؟")
-            
-            st.markdown("### 🔋 سعة العتاد")
-            panel_cap = st.selectbox("قدرة اللوح المستخدم (واط):", [400, 450, 550, 585, 615, 670, 700], index=2)
+        if st.button("احسب النتائج"):
+            panels = round((d_amp * 230) / (p_watt * 0.75))
+            st.success(f"تحتاج إلى {max(1, panels)} لوح شمسي.")
 
-        with col2:
-            st.markdown("### 🌙 أحمال الليل")
-            night_amp = st.number_input("الأمبير المطلوب (من البطارية):", min_value=0.0, value=5.0, step=1.0)
-            hours = st.select_slider("ساعات تشغيل البطارية المطلوبة:", options=[2, 4, 6, 8, 10, 12], value=4)
+# --- صفحة تسجيل الشركات ---
+elif st.session_state.current_page == "reg_co":
+    st.markdown("<h2>🏢 سجل شركتك الآن</h2>", unsafe_allow_html=True)
+    st.text_input("اسم الشركة")
+    st.text_area("وصف الخدمات")
+    st.button("إرسال الطلب")
 
-    st.write("---")
-
-    # زر الحساب السينمائي
-    if st.button("توليد التقرير الهندسي النهائي ✨", use_container_width=True):
-        
-        # 1. حساب الألواح (معادلة الكفاءة 75%)
-        # القدرة الفعلية للوح = القدرة الاسمية * 0.75
-        effective_panel_power = panel_cap * 0.75
-        total_watt_needed = day_amp * 230 # تحويل الأمبير إلى واط (على فولتية 230)
-        panels_count = round(total_watt_needed / effective_panel_power)
-        if panels_count < 1: panels_count = 1
-
-        # 2. حساب البطاريات (AH) 
-        # (أمبير الليل * 230 فولت * الساعات) / (فولتية النظام 48 * عمق التفريغ 0.8)
-        required_ah = (night_amp * 230 * hours) / (48 * 0.8)
-        
-        # 3. تحديد حجم الإنفيرتر (Inverter)
-        if day_amp <= 15:
-            inv_size = "6.2 kW Hybrid"
-        elif day_amp <= 30:
-            inv_size = "10.2 kW Hybrid"
-        else:
-            inv_size = "12 kW Ultra (Parallel)"
-
-        # 4. تحديد سعة الخزن (kWh)
-        if required_ah < 100:
-            storage_type = "5.12 kWh (Lithium)"
-        elif required_ah <= 200:
-            storage_type = "10.24 kWh (Lithium)"
-        else:
-            storage_type = "15 kWh + (High Capacity)"
-
-        # --- عرض النتائج بتصميم البطاقات الفخمة ---
-        st.markdown("### 📋 التقرير الفني المقترح")
-        
-        res1, res2, res3 = st.columns(3)
-        
-        with res1:
-            st.markdown(f"""
-                <div style="background: white; padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                    <h1 style="margin:0; color: #007bff;">{panels_count}</h1>
-                    <p style="color: #666; font-weight: bold;">عدد الألواح</p>
-                    <small>سعة {panel_cap} واط</small>
-                </div>
-            """, unsafe_allow_html=True)
-
-        with res2:
-            st.markdown(f"""
-                <div style="background: white; padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                    <h2 style="margin:0; color: #fbbf24; font-size: 1.5rem;">{inv_size}</h2>
-                    <p style="color: #666; font-weight: bold;">حجم العاكس</p>
-                    <small>نظام Smart Hybrid</small>
-                </div>
-            """, unsafe_allow_html=True)
-
-        with res3:
-            st.markdown(f"""
-                <div style="background: white; padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                    <h2 style="margin:0; color: #10b981; font-size: 1.5rem;">{storage_type}</h2>
-                    <p style="color: #666; font-weight: bold;">خزن البطاريات</p>
-                    <small>تغطية لـ {hours} ساعات</small>
-                </div>
-            """, unsafe_allow_html=True)
-            
-        st.info(f"💡 نصيحة هندسية: تم احتساب {panels_count} لوح لضمان تشغيل {day_amp} أمبير نهاراً مع تعويض الفقد الحراري في العراق.")
-
-# استدعاء الدالة لتعمل داخل التطبيق
-build_solar_calculator()
+# 6. ناف بار سفلي (ثابت وواضح)
+st.markdown("<div class='nav-bar'>", unsafe_allow_html=True)
+c1, c2, c3, c4 = st.columns(4)
+with c1: st.button("🏠 الرئيسية", on_click=lambda: navigate_to("home"))
+with c2: st.button("🏢 سجل شركتك", on_click=lambda: navigate_to("reg_co"))
+with c3: st.button("🎁 خصومات")
+with c4: st.button("👤 حسابي", on_click=lambda: navigate_to("profile"))
