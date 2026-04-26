@@ -3,116 +3,150 @@ import streamlit as st
 # 1. إعدادات الصفحة
 st.set_page_config(page_title="العراق للطاقة الشمسية", layout="wide")
 
-# 2. إدارة البيانات والحالة
-if 'current_page' not in st.session_state: st.session_state.current_page = "home"
-if 'user_data' not in st.session_state: st.session_state.user_data = {"name": "محمد صادق", "city": "بغداد"}
+# 2. إدارة الحالة (Navigation & Data)
+if 'current_page' not in st.session_state: st.session_state.current_page = "register"
+if 'user_data' not in st.session_state: st.session_state.user_data = {"name": "", "city": ""}
+if 'is_registered' not in st.session_state: st.session_state.is_registered = False
 
 def navigate_to(page): st.session_state.current_page = page
 
-# 3. CSS "الاحترافي" لضمان الوضوح والجمال
+# 3. تصميم الـ CSS المتقدم (وضوح الحقول + استجابة الألوان)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
     * { font-family: 'Cairo', sans-serif; text-align: right; direction: rtl; }
     
-    /* خلفية بيضاء ناصعة للتطبيق */
-    .stApp { background-color: #ffffff; }
-
-    /* إجبار النصوص على اللون الأزرق الغامق جداً */
-    h1, h2, h3, h4, p, span, label {
-        color: #001a33 !important;
-        font-weight: 900 !important;
+    /* وضوح الحقول (Inputs) */
+    div[data-baseweb="input"], div[data-baseweb="select"], .stNumberInput {
+        background-color: #fcfcfc !important;
+        border: 2px solid #0056b3 !important; /* لون أزرق واضح للحدود */
+        border-radius: 10px !important;
     }
-
-    /* تصميم البطاقات المربعة (مثل بلي) */
-    .menu-card {
-        background-color: #f0f7ff;
-        border: 2px solid #0056b3;
-        border-radius: 20px;
+    
+    /* ألوان النصوص والنتائج */
+    .result-box {
+        background-color: #e6f3ff;
+        color: #001a33;
         padding: 20px;
-        text-align: center;
-        margin-bottom: 10px;
-        min-height: 140px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        border-radius: 15px;
+        border-right: 10px solid #0056b3;
+        margin: 10px 0px;
+        font-weight: bold;
     }
-    .menu-card img { width: 50px; margin-bottom: 10px; }
-
-    /* تصميم الخانات (المستطيلات الواضحة) */
-    div[data-baseweb="input"], .stNumberInput, .stSelectbox, .stSlider {
-        background-color: #ffffff !important;
-        border: 2px solid #001a33 !important;
-        border-radius: 12px !important;
+    
+    .stButton>button {
+        border-radius: 12px;
+        font-weight: bold;
+        transition: 0.3s;
     }
-    input { color: #000000 !important; font-weight: 700 !important; }
 
     /* البانر العلوي */
     .top-banner {
-        background: linear-gradient(135deg, #0056b3 0%, #00aaff 100%);
-        padding: 30px; border-radius: 20px; color: white !important;
+        background: linear-gradient(135deg, #0056b3 0%, #001a33 100%);
+        padding: 25px; border-radius: 15px; color: white;
         text-align: center; margin-bottom: 20px;
     }
-    .top-banner h1, .top-banner p { color: white !important; }
-
-    /* إخفاء زوائد ستريم ليت */
-    [data-testid="stHeader"], footer {visibility: hidden;}
-    .block-container { padding-top: 1rem; padding-bottom: 6rem; }
+    
+    /* تنسيق دليل الشركات */
+    .company-card {
+        background: white; border: 1px solid #ddd;
+        padding: 15px; border-radius: 10px; margin-bottom: 10px;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# 4. محتوى الصفحات
+# 4. منطق الصفحات
+# --- صفحة التسجيل الأولية ---
+if st.session_state.current_page == "register":
+    st.markdown("<div class='top-banner'><h1>مرحباً بك في منصة طاقة العراق</h1><p>يرجى إدخال بياناتك للمتابعة</p></div>", unsafe_allow_html=True)
+    with st.container():
+        name = st.text_input("الاسم الكامل (المستخدم):")
+        city = st.selectbox("المحافظة:", ["بغداد", "البصرة", "الموصل", "أربيل", "النجف", "كربلاء", "أخرى"])
+        if st.button("دخول التطبيق 🚀", use_container_width=True):
+            if name:
+                st.session_state.user_data = {"name": name, "city": city}
+                st.session_state.current_page = "home"
+                st.rerun()
+
 # --- الصفحة الرئيسية ---
-if st.session_state.current_page == "home":
-    st.markdown(f"""<div class='top-banner'><h1>أهلاً بك، {st.session_state.user_data['name']}</h1>
-    <p>محافظة {st.session_state.user_data['city']}</p></div>""", unsafe_allow_html=True)
+elif st.session_state.current_page == "home":
+    st.markdown(f"<div class='top-banner'><h3>أهلاً {st.session_state.user_data['name']}</h3><p>دليل وخدمات الطاقة الشمسية في {st.session_state.user_data['city']}</p></div>", unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown('<div class="menu-card"><img src="https://cdn-icons-png.flaticon.com/512/3106/3106856.png"><h4>حساب المنظومة</h4></div>', unsafe_allow_html=True)
-        st.button("افتح الحاسبة", key="c1", use_container_width=True, on_click=navigate_to, args=("calc",))
-        
-        st.markdown('<div class="menu-card"><img src="https://cdn-icons-png.flaticon.com/512/1067/1067555.png"><h4>طلب صيانة</h4></div>', unsafe_allow_html=True)
-        st.button("احجز موعد", key="c2", use_container_width=True)
-
+        st.button("📊 حاسبة المنظومة", use_container_width=True, on_click=navigate_to, args=("calc",))
+        st.button("🏢 دليل الشركات المعتمدة", use_container_width=True, on_click=navigate_to, args=("directory",))
     with col2:
-        st.markdown('<div class="menu-card"><img src="https://cdn-icons-png.flaticon.com/512/995/995260.png"><h4>دليل الشركات</h4></div>', unsafe_allow_html=True)
-        st.button("تصفح الشركات", key="c3", use_container_width=True, on_click=navigate_to, args=("cos",))
+        st.button("📝 تسجيل شركة جديدة", use_container_width=True, on_click=navigate_to, args=("reg_company",))
+        st.button("👤 بيانات حسابي", use_container_width=True, on_click=navigate_to, args=("profile",))
 
-        st.markdown('<div class="menu-card"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"><h4>إعدادات حسابي</h4></div>', unsafe_allow_html=True)
-        st.button("تعديل البيانات", key="c4", use_container_width=True)
-
-# --- صفحة الحاسبة (كاملة وواضحة) ---
+# --- صفحة الحاسبة المحدثة ---
 elif st.session_state.current_page == "calc":
-    st.markdown("<h2 style='text-align:center;'>📊 حاسبة الطاقة الشمسية</h2>", unsafe_allow_html=True)
-    
-    with st.container():
-        a_day = st.number_input("الأمبير المطلوب نهاراً:", value=10)
-        a_night = st.number_input("الأمبير المطلوب ليلاً (بطارية):", value=5)
-        h_night = st.slider("عدد ساعات عمل البطارية:", 2, 12, 6)
+    st.header("📊 حاسبة المنظومة الشمسية")
+    col_a, col_b = st.columns(2)
+    with col_a:
+        st.markdown("##### الإستهلاك النهاري")
+        a_day = st.number_input("الأمبير المطلوب نهاراً (A):", min_value=1, value=10)
+    with col_b:
+        st.markdown("##### الإستهلاك الليلي (البطاريات)")
+        a_night = st.number_input("الأمبير المطلوب ليلاً (A):", min_value=1, value=5)
+        h_night = st.slider("عدد ساعات التشغيل المطلوبة في الليل:", 2, 16, 6)
+
+    if st.button("احسب احتياجك الآن ✨", use_container_width=True):
+        panels = round((a_day * 230) / 400) # معادلة تقريبية للألواح
+        batt_cap = (a_night * h_night * 230) / 1000 # كيلو واط ساعة
         
-        if st.button("احسب النتائج الآن ✨", use_container_width=True):
-            st.markdown("---")
-            panels = round((a_day * 230) / 400)
-            batt = (a_night * h_night * 230) / 1000
-            
-            res_css = "background:#f0f7ff; padding:15px; border-radius:15px; border:2px solid #0056b3; margin-bottom:10px;"
-            st.markdown(f"<div style='{res_css}'>✅ تحتاج إلى <b>{panels} ألواح</b> قدرة 550 واط.</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='{res_css}'>✅ سعة البطارية المطلوبة: <b>{batt:.1f} kWh</b>.</div>", unsafe_allow_html=True)
+        st.markdown(f"""
+            <div class='result-box'>
+                <p>☀️ عدد الألواح المقترح (550 واط): {panels} لوح</p>
+                <p>🔋 سعة البطاريات المطلوبة: {batt_cap:.1f} كيلو واط (kWh)</p>
+                <p>⏱️ مدة التغطية الليلية: {h_night} ساعة مستمرة</p>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    st.button("⬅️ عودة للرئيسية", on_click=navigate_to, args=("home",))
+
+# --- صفحة تسجيل الشركات (جديدة) ---
+elif st.session_state.current_page == "reg_company":
+    st.header("📝 تسجيل شركة في المنصة")
+    st.info("سيتم مراجعة بيانات الشركة من قبل الإدارة والموافقة عليها.")
+    with st.form("company_form"):
+        c_name = st.text_input("اسم الشركة الرسمي:")
+        c_location = st.text_input("عنوان المقر الرئيسي:")
+        c_phone = st.text_input("رقم هاتف التواصل:")
+        c_work = st.multiselect("خدمات الشركة:", ["تركيب منظومات", "بيع بطاريات", "صيانة", "ألواح شمسية"])
+        if st.form_submit_button("إرسال الطلب للموافقة"):
+            st.success("تم إرسال معلوماتك بنجاح! سيتم التواصل معك قريباً.")
 
     st.button("⬅️ عودة للرئيسية", on_click=navigate_to, args=("home",))
 
 # --- صفحة دليل الشركات ---
-elif st.session_state.current_page == "cos":
-    st.markdown("<h2>🏢 الشركات المعتمدة</h2>", unsafe_allow_html=True)
-    companies = [{"n": "شمس الرافدين", "l": "بغداد"}, {"n": "طاقة المستقبل", "l": "البصرة"}]
-    for c in companies:
-        st.markdown(f"""<div style='background:white; padding:15px; border-radius:15px; border:2px solid #001a33; margin-bottom:10px;'>
-        <h4>{c['n']}</h4><p>📍 الموقع: {c['l']}</p></div>""", unsafe_allow_html=True)
+elif st.session_state.current_page == "directory":
+    st.header("🏢 دليل الشركات المعتمدة")
+    search = st.text_input("🔍 ابحث عن شركة أو محافظة...")
+    
+    companies = [
+        {"name": "رافدين للطاقة", "city": "بغداد", "status": "معتمدة ✅"},
+        {"name": "نجمة البصرة", "city": "البصرة", "status": "معتمدة ✅"}
+    ]
+    
+    for comp in companies:
+        st.markdown(f"""
+            <div class='company-card'>
+                <h4>{comp['name']}</h4>
+                <p>📍 الموقع: {comp['city']} | الحالة: {comp['status']}</p>
+            </div>
+            """, unsafe_allow_html=True)
+    
     st.button("⬅️ عودة للرئيسية", on_click=navigate_to, args=("home",))
 
-# 5. شريط التنقل السفلي (بصف واحد منظم)
-st.markdown("<div style='height:80px;'></div>", unsafe_allow_html=True)
-nav_cols = st.columns(4)
-with nav_cols[0]: st.button("🏠 الرئيسية", key="nav1", on_click=navigate_to, args=("home",), use_container_width=True)
-with nav_cols[1]: st.button("🏢 الشركات", key="nav2", on_click=navigate_to, args=("cos",), use_container_width=True)
-with nav_cols[2]: st.button("🎁 هدايا", key="nav3", use_container_width=True)
-with nav_cols[3]: st.button("👤 حسابي", key="nav4", use_container_width=True)
+# --- صفحة حسابي ---
+elif st.session_state.current_page == "profile":
+    st.header("👤 حسابي")
+    st.write(f"**الاسم:** {st.session_state.user_data['name']}")
+    st.write(f"**الموقع:** {st.session_state.user_data['city']}")
+    if st.button("تعديل البيانات"):
+        st.session_state.current_page = "register"
+        st.rerun()
+    st.button("⬅️ عودة للرئيسية", on_click=navigate_to, args=("home",))
