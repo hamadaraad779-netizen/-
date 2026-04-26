@@ -7,7 +7,6 @@ st.set_page_config(page_title="سولار إيراك | Solar Iraq", layout="cent
 # --- CSS لتطوير الشكل العام (Modern UI) ---
 st.markdown("""
     <style>
-    /* تغيير الخلفية والخطوط */
     .stApp {
         background-color: #f8f9fa;
     }
@@ -16,8 +15,6 @@ st.markdown("""
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         text-align: center;
     }
-    
-    /* تصميم البطاقات للنتائج */
     .result-card {
         background-color: white;
         padding: 20px;
@@ -26,8 +23,6 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         margin-bottom: 20px;
     }
-    
-    /* تحسين أزرار التنقل */
     .stButton>button {
         width: 100%;
         border-radius: 10px;
@@ -41,12 +36,10 @@ st.markdown("""
         background-color: #fbbf24;
         color: #1e3a8a;
     }
-    
-    /* إخفاء القائمة العلوية لزيادة الرسمية */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
-    """, unsafe_allow_status=True)
+    """, unsafe_allow_html=True)
 
 # --- إدارة البيانات والحالة ---
 if 'step' not in st.session_state:
@@ -61,20 +54,16 @@ def prev_step(): st.session_state.step -= 1
 def restart(): st.session_state.step = 1
 
 # --- الهيدر الرئيسي ---
-st.markdown("<h1>☀️ منصة سولار إيراك الذكية</h1>", unsafe_allow_status=True)
-st.markdown("<p style='text-align: center; color: #64748b;'>تصميم منظومات الطاقة الشمسية بدقة واحترافية</p>", unsafe_allow_status=True)
+st.markdown("<h1 style='text-align: center;'>☀️ منصة سولار إيراك الذكية</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #64748b;'>تصميم منظومات الطاقة الشمسية بدقة واحترافية</p>", unsafe_allow_html=True)
 st.write("---")
 
-# القائمة الجانبية بشكل أنيق
-st.sidebar.markdown("<h2 style='text-align: right;'>القائمة الرئيسية</h2>", unsafe_allow_status=True)
+# القائمة الجانبية
+st.sidebar.markdown("<h2 style='text-align: right;'>القائمة الرئيسية</h2>", unsafe_allow_html=True)
 app_mode = st.sidebar.radio("", ["📱 حاسبة المنظومة", "📝 انضم كشركة", "🔐 الإدارة"], label_visibility="collapsed")
 
-# ---------------------------------------------------------
 # 1. الحاسبة المتطورة
-# ---------------------------------------------------------
 if app_mode == "📱 حاسبة المنظومة":
-    
-    # بروجرس بار (شريط تقدم)
     progress = (st.session_state.step - 1) / 3
     st.progress(progress)
 
@@ -104,16 +93,15 @@ if app_mode == "📱 حاسبة المنظومة":
     elif st.session_state.step == 4:
         st.markdown("### 📊 المواصفات الفنية لمنظومتك")
         
-        # الحسابات (المعادلات اللي طلبتها)
-        # كفاءة لوح 80% وتفريغ بطارية 80%
+        # الحسابات
         watt_day = st.session_state.day_amp * 230
         effective_panel = st.session_state.panel_cap * 0.8
-        needed_panels = round(watt_day / (effective_panel * 1.0)) # افتراض ساعات ذروة
+        needed_panels = round(watt_day / (effective_panel * 1.0))
         
         watt_night = st.session_state.night_amp * 230 * st.session_state.hours
-        needed_battery = round(watt_night / (48 * 0.8)) # حساب على نظام 48 فولت
+        needed_battery = round(watt_night / (48 * 0.8))
 
-        # عرض النتائج بشكل بطاقات عصرية
+        # عرض النتائج بشكل بطاقات
         st.markdown(f"""
             <div class="result-card">
                 <h4 style='color: #1e3a8a;'>📦 عدد الألواح المطلوبة</h4>
@@ -123,7 +111,7 @@ if app_mode == "📱 حاسبة المنظومة":
                 <h4 style='color: #1e3a8a;'>🔋 سعة البطاريات (ليثيوم)</h4>
                 <p style='font-size: 24px; font-weight: bold;'>{needed_battery} Ah (نظام 48 فولت)</p>
             </div>
-        """, unsafe_allow_status=True)
+        """, unsafe_allow_html=True)
         
         st.write("---")
         st.subheader("🏢 شركات تنفيذ معتمدة")
@@ -136,29 +124,22 @@ if app_mode == "📱 حاسبة المنظومة":
 
         st.button("🔄 ابدأ من جديد", on_click=restart)
 
-# ---------------------------------------------------------
 # 2. طلب الانضمام
-# ---------------------------------------------------------
 elif app_mode == "📝 انضم كشركة":
     st.markdown("### تسجيل شركة جديدة")
-    with st.container():
-        st.write("املأ البيانات التالية لطلب إدراج شركتك في المنصة:")
-        with st.form("company_form"):
-            name = st.text_input("اسم الشركة")
-            city = st.text_input("المدينة / المحافظة")
-            phone = st.text_input("رقم الواتساب (مثال: 9647XXXXXXXX)")
-            desc = st.text_area("نبذة عن الخدمات")
-            if st.form_submit_button("إرسال الطلب"):
-                st.session_state.pending_requests.append({"الاسم": name, "المدينة": city, "هاتف": phone, "الوصف": desc})
-                st.success("تم استلام طلبك! سيظهر للجمهور بعد موافقة الإدارة.")
+    with st.form("company_form"):
+        name = st.text_input("اسم الشركة")
+        city = st.text_input("المدينة / المحافظة")
+        phone = st.text_input("رقم الواتساب (مثال: 9647XXXXXXXX)")
+        desc = st.text_area("نبذة عن الخدمات")
+        if st.form_submit_button("إرسال الطلب"):
+            st.session_state.pending_requests.append({"الاسم": name, "المدينة": city, "هاتف": phone, "الوصف": desc})
+            st.success("تم استلام طلبك! سيظهر للجمهور بعد موافقة الإدارة.")
 
-# ---------------------------------------------------------
 # 3. لوحة الإدارة
-# ---------------------------------------------------------
 elif app_mode == "🔐 الإدارة":
     st.markdown("### إدارة المحتوى")
     password = st.text_input("كلمة المرور الإدارية", type="password")
-    
     if password == "1234":
         st.success("أهلاً بك أيها المدير")
         if not st.session_state.pending_requests:
