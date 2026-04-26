@@ -1,167 +1,140 @@
 import streamlit as st
 
-st.set_page_config(page_title="منصة طاقة العراق", layout="wide")
-
-# الحالة
-if 'current_page' not in st.session_state:
-    st.session_state.current_page = "home"
-
-if 'approved_cos' not in st.session_state:
-    st.session_state.approved_cos = [
-        {"name": "شركة الرافدين للطاقة", "city": "بغداد", "phone": "07801112223"},
-        {"name": "طاقة الجنوب المحدودة", "city": "البصرة", "phone": "07704445556"}
-    ]
-
-def navigate_to(page):
-    st.session_state.current_page = page
-
-# 🎨 CSS محدث
+# 1. إعدادات التصميم الاحترافي (UI/UX)
 st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap');
+    
+    * { font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; }
 
-* {
-    font-family: 'Cairo', sans-serif;
-    direction: rtl;
-}
+    /* تحسين خلفية التطبيق */
+    .stApp {
+        background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
+    }
 
-/* خلفية */
-.stApp {
-    background-color: #F8FAFC;
-}
+    /* البانر العلوي الاحترافي */
+    .hero-section {
+        background: linear-gradient(90deg, #002b5b 0%, #0056b3 100%);
+        padding: 40px;
+        border-radius: 25px;
+        color: white;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 20px rgba(0,43,91,0.2);
+    }
 
-/* نصوص عامة بالازرق */
-h1, h2, h3, h4, p, label {
-    color: #1D4ED8 !important;
-}
+    /* تنسيق حقول الإدخال لتكون بارزة */
+    .stNumberInput div[data-baseweb="input"], .stSlider {
+        background-color: white !important;
+        border: 2px solid #0056b3 !important;
+        border-radius: 15px !important;
+        padding: 5px !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+    }
 
-/* بانر */
-.hero {
-    background: linear-gradient(135deg, #1D4ED8, #3B82F6);
-    padding: 40px;
-    border-radius: 0 0 30px 30px;
-    text-align: center;
-    color: white !important;
-}
+    /* العناوين الجانبية */
+    h3 {
+        color: #002b5b !important;
+        border-right: 5px solid #ffc107;
+        padding-right: 15px;
+        font-weight: 800 !important;
+    }
 
-/* كروت */
-.card {
-    background: white;
-    padding: 20px;
-    border-radius: 14px;
-    margin-bottom: 15px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-}
+    /* زر الحساب الاحترافي */
+    .stButton>button {
+        background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
+        color: #002b5b !important;
+        font-weight: 900 !important;
+        font-size: 1.2rem !important;
+        border: none !important;
+        border-radius: 15px !important;
+        padding: 15px 30px !important;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(255,193,7,0.4);
+    }
+    .stButton>button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(255,193,7,0.6);
+    }
 
-/* الشركات بالاسود */
-.company-card {
-    background: white;
-    padding: 20px;
-    border-radius: 14px;
-    margin-bottom: 15px;
-    color: black !important;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-}
+    /* بطاقة النتائج المذهلة */
+    .result-box {
+        background: white;
+        border-radius: 25px;
+        padding: 30px;
+        border: 1px solid #e0e7ff;
+        box-shadow: 0 15px 35px rgba(0,86,179,0.1);
+        margin-top: 30px;
+    }
+    
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px border-style: solid; border-color: #f0f2f6;
+    }
+    
+    .stat-label { color: #555; font-weight: 600; }
+    .stat-value { color: #0056b3; font-weight: 900; font-size: 1.3rem; }
+    </style>
+    """, unsafe_allow_html=True)
 
-/* أزرار */
-.stButton > button {
-    background: linear-gradient(135deg, #1D4ED8, #2563EB);
-    color: white;
-    border-radius: 10px;
-    height: 45px;
-    font-weight: bold;
-}
-
-/* مدخلات */
-div[data-baseweb="input"] {
-    background-color: white;
-    border: 2px solid #3B82F6;
-    border-radius: 10px;
-}
-
-input {
-    color: black !important;
-    font-weight: bold;
-}
-
-/* إخفاء */
-[data-testid="stHeader"], footer {
-    visibility: hidden;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ---------------- HOME ----------------
-if st.session_state.current_page == "home":
-    st.markdown("""
-    <div class='hero'>
-        <h1>☀️ منصة الطاقة الشمسية</h1>
-        <p>احسب منظومتك بسهولة</p>
+# 2. واجهة المستخدم (Layout)
+st.markdown("""
+    <div class="hero-section">
+        <h1 style="color:white; margin:0;">📊 حاسبة المنظومة الذكية</h1>
+        <p style="color:#e0e7ff; opacity:0.9;">صمم منظومتك الشمسية بدقة هندسية عالية</p>
     </div>
     """, unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2)
+# إنشاء أعمدة الإدخال
+col1, col2 = st.columns(2, gap="large")
 
-    with col1:
-        st.markdown("<div class='card'><h3>📐 الحاسبة</h3></div>", unsafe_allow_html=True)
-        st.button("افتح الحاسبة", use_container_width=True, on_click=navigate_to, args=("calc",))
+with col1:
+    st.markdown("### ☀️ فترة النهار")
+    a_day = st.number_input("إجمالي الأمبير المطلوب نهاراً:", min_value=1.0, value=10.0, step=0.5, help="ادخل مجموع أمبيرية الأجهزة التي تعمل وقت الذروة")
+    
+with col2:
+    st.markdown("### 🌙 فترة الليل")
+    a_night = st.number_input("الأمبير المطلوب تشغيله ليلاً:", min_value=0.0, value=5.0, step=0.5)
+    st.markdown("<p style='font-size:0.9rem; color:#666;'>حدد مدة الاعتماد على البطاريات:</p>", unsafe_allow_html=True)
+    h_night = st.slider("", 2, 16, 6, format="%d ساعة")
 
-    with col2:
-        st.markdown("<div class='card'><h3>🏢 الشركات</h3></div>", unsafe_allow_html=True)
-        st.button("دليل الشركات", use_container_width=True, on_click=navigate_to, args=("cos_list",))
-
-
-# ---------------- CALCULATOR ----------------
-elif st.session_state.current_page == "calc":
-
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("<h2>📊 الحاسبة</h2>", unsafe_allow_html=True)
-
-    amp_day = st.number_input("الاستخدام النهاري", value=10)
-    amp_night = st.number_input("الاستخدام الليلي", value=5)
-    hours = st.number_input("الساعات", value=6)
-
-    if st.button("احسب 🚀"):
-        res = amp_night * hours
-        bat = "5kW" if res <= 100 else "10kW" if res <= 200 else "15kW"
-        st.success(f"🔋 البطارية المطلوبة: {bat}")
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.button("⬅️ رجوع", on_click=navigate_to, args=("home",))
-
-
-# ---------------- COMPANIES ----------------
-elif st.session_state.current_page == "cos_list":
-
-    st.markdown("<h2 style='color:black;'>🏢 دليل الشركات</h2>", unsafe_allow_html=True)
-
-    # عرض الشركات
-    for co in st.session_state.approved_cos:
-        st.markdown(f"""
-        <div class='company-card'>
-            <h4>{co['name']}</h4>
-            <p>📍 {co['city']}</p>
-            <p>📞 {co['phone']}</p>
+# 3. منطق الحساب والنتائج
+st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
+if st.button("توليد التقرير الفني للمنظومة ✨", use_container_width=True):
+    
+    # حسابات فنية (تقريبية لأغراض العرض)
+    panel_power = 550  # واط لكل لوح
+    system_voltage = 48 # فولتية النظام
+    panels_count = round((a_day * 230) / panel_power) + 1
+    total_energy_night = (a_night * 230 * h_night) / 1000 # كيلو واط ساعة
+    
+    st.markdown(f"""
+        <div class="result-box">
+            <h2 style="text-align:center; color:#002b5b; margin-bottom:20px;">📋 التقرير الفني المقترح</h2>
+            <div class="stat-item">
+                <span class="stat-label">🏗️ عدد الألواح (قدرة {panel_power} واط)</span>
+                <span class="stat-value">{panels_count} ألواح</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">🔋 سعة بنك البطاريات المطلوبة</span>
+                <span class="stat-value">{total_energy_night:.1f} kWh</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">🔌 حجم العاكس (Inverter) المقترح</span>
+                <span class="stat-value">{round((a_day+a_night)*230/1000)+1} KVA</span>
+            </div>
+            <div class="stat-item" style="border:none;">
+                <span class="stat-label">⏱️ ساعات الاستقلالية الليلية</span>
+                <span class="stat-value">{h_night} ساعة</span>
+            </div>
+            <p style="text-align:center; color:#ff9800; font-size:0.8rem; margin-top:20px;">* النتائج تقريبية وتعتمد على جودة المكونات وظروف التركيب.</p>
         </div>
-        """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-    # ➕ إضافة شركة جديدة
-    st.markdown("### ➕ إضافة شركة جديدة")
-
-    name = st.text_input("اسم الشركة")
-    city = st.text_input("المدينة")
-    phone = st.text_input("رقم الهاتف")
-
-    if st.button("إضافة الشركة"):
-        if name and city and phone:
-            st.session_state.approved_cos.append({
-                "name": name,
-                "city": city,
-                "phone": phone
-            })
-            st.success("تمت إضافة الشركة بنجاح ✅")
-        else:
-            st.error("يرجى ملء جميع الحقول")
-
-    st.button("⬅️ رجوع", on_click=navigate_to, args=("home",))
+# إضافة زر العودة بتنسيق بسيط
+st.markdown("<br>", unsafe_allow_html=True)
+if st.button("⬅️ العودة للقائمة الرئيسية", key="back"):
+    pass # هنا تضع منطق التنقل الخاص بك
