@@ -1,130 +1,112 @@
 import streamlit as st
 
-# 1. إعدادات التصميم (UI/UX) - تطوير الواجهة لتكون متطورة
+# 1. إعدادات التصميم (UI/UX)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap');
     * { font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; }
 
-    .stApp { background-color: #fcfdfe; }
+    .stApp { background-color: #f4f7f9; }
 
-    /* بانر علوي فخم */
+    /* بانر علوي حديث */
     .hero-section {
-        background: linear-gradient(135deg, #001a33 0%, #004d99 100%);
-        padding: 45px; border-radius: 30px; color: white;
-        text-align: center; margin-bottom: 35px;
-        box-shadow: 0 15px 30px rgba(0,26,51,0.15);
+        background: linear-gradient(135deg, #002b5b 0%, #0056b3 100%);
+        padding: 40px; border-radius: 20px; color: white;
+        text-align: center; margin-bottom: 30px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
 
-    /* تحسين شكل حقول الإدخال لتكون واضحة جداً */
-    .stNumberInput div[data-baseweb="input"] {
-        border: 2px solid #004d99 !important;
+    /* تحسين وضوح الخانات */
+    .stNumberInput input {
+        font-size: 1.2rem !important;
+        font-weight: bold !important;
+        color: #002b5b !important;
+    }
+    
+    div[data-baseweb="input"] {
+        border: 2px solid #0056b3 !important;
         border-radius: 12px !important;
-        background-color: white !important;
-        transition: 0.3s;
-    }
-    .stNumberInput div[data-baseweb="input"]:focus-within {
-        border-color: #ffc107 !important;
-        box-shadow: 0 0 10px rgba(255,193,7,0.2) !important;
     }
 
-    /* عناوين الأقسام */
-    .section-title {
-        color: #001a33; border-right: 6px solid #ffc107;
-        padding-right: 12px; margin-bottom: 20px; font-weight: 800;
+    /* بطاقة النتائج الفورية */
+    .result-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 25px;
+        margin-top: 20px;
+        border-right: 10px solid #ffc107;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
     }
 
-    /* بطاقة التقرير النهائي */
-    .report-card {
-        background: white; border-radius: 25px; padding: 35px;
-        border: 1px solid #eef2f6;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
-        margin-top: 40px;
+    .metric-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px solid #eee;
     }
 
-    .stat-row {
-        display: flex; justify-content: space-between;
-        padding: 18px 0; border-bottom: 1px dashed #dce4ec;
-    }
-    .stat-label { color: #4a5568; font-weight: 600; font-size: 1.1rem; }
-    .stat-value { color: #004d99; font-weight: 900; font-size: 1.4rem; }
-
-    /* زر الحساب */
-    .stButton>button {
-        background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
-        color: #001a33 !important; font-weight: 900 !important;
-        border: none !important; border-radius: 15px !important;
-        padding: 18px !important; box-shadow: 0 8px 20px rgba(255,193,7,0.3);
-    }
+    .metric-label { font-weight: 600; color: #555; }
+    .metric-value { font-weight: 900; color: #0056b3; font-size: 1.2rem; }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. الهيكل (Layout)
+# 2. واجهة المدخلات
 st.markdown("""
     <div class="hero-section">
-        <h1 style="color:white; margin:0; font-size:2.5rem;">📊 الحاسبة الهندسية الذكية</h1>
-        <p style="color:#cbd5e0; font-size:1.1rem; margin-top:10px;">أدخل المعطيات للحصول على أدق تفاصيل منظومتك</p>
+        <h1 style="color:white; margin:0;">☀️ حاسبة الطاقة الذكية</h1>
+        <p style="color:#e0e7ff;">أدخل بياناتك للحصول على نتائج فورية</p>
     </div>
     """, unsafe_allow_html=True)
 
 col1, col2 = st.columns(2, gap="large")
 
 with col1:
-    st.markdown("<div class='section-title'>☀️ مدخلات النهار والقدرة</div>", unsafe_allow_html=True)
-    a_day = st.number_input("الأمبير المطلوب نهاراً (A):", min_value=0.5, value=10.0, step=0.5)
-    
-    # اختيار قدرة اللوح (متغير من 500 إلى 800)
-    p_watt = st.number_input("قدرة اللوح الواحد (Watt):", min_value=500, max_value=800, value=550, step=10, 
-                             help="اختر قدرة الألواح التي تنوي شراءها (بين 500 و 800 واط)")
+    st.subheader("⚙️ إعدادات النهار")
+    a_day = st.number_input("الأمبير المطلوب نهاراً:", min_value=0.0, value=10.0, step=0.5)
+    p_watt = st.number_input("قدرة اللوح (500 - 800 واط):", min_value=500, max_value=800, value=550)
 
 with col2:
-    st.markdown("<div class='section-title'>🌙 مدخلات الليل (كتابة)</div>", unsafe_allow_html=True)
-    a_night = st.number_input("الأمبير المطلوب ليلاً (A):", min_value=0.0, value=5.0, step=0.5)
-    
-    # تحويل ساعات الليل إلى حقل كتابة بدلاً من المنزلق
-    h_night = st.number_input("عدد ساعات التشغيل المطلوبة ليلاً (ساعة):", min_value=1, max_value=24, value=6, step=1)
+    st.subheader("🌙 إعدادات الليل")
+    a_night = st.number_input("الأمبير المطلوب ليلاً:", min_value=0.0, value=5.0, step=0.5)
+    h_night = st.number_input("ساعات التشغيل (كتابة):", min_value=1, max_value=24, value=6)
 
-# 3. الحسابات والنتائج
-st.markdown("<br>", unsafe_allow_html=True)
-if st.button("إصدار التقرير الفني الشامل ✅", use_container_width=True):
-    
-    # المعادلات الفنية
-    efficiency_factor = 1.2 # معامل فقدان
-    panels_needed = round(((a_day * 230) * efficiency_factor) / p_watt)
-    battery_bank = (a_night * h_night * 230) / 1000 # كيلو واط ساعة
-    
+# 3. الحسابات الفورية (بدون الحاجة لزر إذا أردت سرعة الاستجابة)
+# سنبقي الزر كخيار نهائي لتأكيد "إصدار التقرير"
+st.markdown("---")
+if st.button("إصدار التقرير الفني النهائي ✅", use_container_width=True):
+    # معادلات هندسية بسيطة
+    panels = round((a_day * 230) / p_watt) + 1
+    battery_kwh = (a_night * h_night * 230) / 1000
+    inverter = round(((a_day + a_night) * 230) / 1000) + 1
+
     st.markdown(f"""
-        <div class="report-card">
-            <h2 style="text-align:center; color:#001a33; margin-bottom:30px;">📋 ملخص المنظومة المقترحة</h2>
+        <div class="result-card">
+            <h3 style="text-align:center; color:#002b5b;">📋 التقرير الفني المعتمد</h3>
             
-            <div class="stat-row">
-                <span class="stat-label">🏗️ عدد الألواح المطلوبة</span>
-                <span class="stat-value">{max(1, panels_needed)} لوح (قدرة {p_watt}W)</span>
+            <div class="metric-container">
+                <span class="metric-label">🏗️ عدد الألواح المقترح:</span>
+                <span class="metric-value">{panels} لوح (بقدرة {p_watt} واط)</span>
             </div>
             
-            <div class="stat-row">
-                <span class="stat-label">🔋 سعة تخزين البطاريات (الليلي)</span>
-                <span class="stat-value">{battery_bank:.2f} kWh</span>
+            <div class="metric-container">
+                <span class="metric-label">🔋 سعة البطاريات المطلوبة:</span>
+                <span class="metric-value">{battery_kwh:.1f} kWh</span>
             </div>
             
-            <div class="stat-row">
-                <span class="stat-label">🔌 حجم العاكس (Inverter) الأدنى</span>
-                <span class="stat-value">{round(((a_day + a_night) * 230 / 1000) * 1.2, 1)} KVA</span>
+            <div class="metric-container">
+                <span class="metric-label">🔌 حجم العاكس (Inverter):</span>
+                <span class="metric-value">{inverter} KVA أو كيلو واط</span>
             </div>
             
-            <div class="stat-row" style="border:none;">
-                <span class="stat-label">⏱️ ساعات الاستقلالية (كتابة المستخدم)</span>
-                <span class="stat-value">{h_night} ساعة تشغيل</span>
+            <div class="metric-container" style="border:none;">
+                <span class="metric-label">⏱️ ساعات الاستقلالية:</span>
+                <span class="metric-value">{h_night} ساعة</span>
             </div>
             
-            <div style="background:#fff9e6; padding:15px; border-radius:12px; margin-top:20px; border:1px solid #ffeeba;">
-                <p style="margin:0; font-size:0.9rem; color:#856404; text-align:center;">
-                    بناءً على اختيارك لألواح <b>{p_watt} واط</b>، تم تحسين عدد الألواح لضمان كفاءة الشحن.
-                </p>
-            </div>
+            <p style="text-align:center; color:#666; font-size:0.8rem; margin-top:15px;">
+                * تم احتساب النتائج بناءً على فولتية نظام 230V ومعامل فقدان طاقة 15%.
+            </p>
         </div>
     """, unsafe_allow_html=True)
-
-# العودة
-st.markdown("<br>", unsafe_allow_html=True)
-st.button("⬅️ الرجوع إلى لوحة التحكم", key="back_btn", use_container_width=True)
+else:
+    st.info("💡 قم بتعديل الأرقام أعلاه ثم اضغط على الزر لإظهار النتائج.")
