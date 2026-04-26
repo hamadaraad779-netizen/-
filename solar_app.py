@@ -1,156 +1,175 @@
 import streamlit as st
-import pandas as pd
 
-# إعدادات الصفحة والتصميم الحديث
-st.set_page_config(page_title="سولار إيراك | Solar Iraq", layout="centered")
+# إعدادات الصفحة
+st.set_page_config(page_title="سولار إيراك | منصة الطاقة الذكية", layout="centered")
 
-# --- CSS لتطوير الشكل العام (Modern UI) ---
+# --- تحسين التصميم باستخدام CSS المتقدم ---
 st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Cairo', sans-serif;
+        text-align: right;
+    }
+    
     .stApp {
-        background-color: #f8f9fa;
+        background: linear-gradient(180deg, #f0f4f8 0%, #ffffff 100%);
     }
-    h1, h2, h3 {
-        color: #1e3a8a;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        text-align: center;
+
+    /* تصميم البطاقات الاحترافي */
+    .main-card {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border-top: 6px solid #1e40af;
+        margin-bottom: 25px;
     }
-    .result-card {
-        background-color: white;
+
+    .stat-box {
+        background: #f8fafc;
         padding: 20px;
         border-radius: 15px;
-        border-right: 5px solid #fbbf24;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+        transition: transform 0.3s ease;
     }
+    
+    .stat-box:hover {
+        transform: translateY(-5px);
+        border-color: #3b82f6;
+    }
+
+    /* تحسين الأزرار */
     .stButton>button {
         width: 100%;
-        border-radius: 10px;
-        height: 3em;
-        background-color: #1e3a8a;
+        border-radius: 12px;
+        height: 3.5em;
+        background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%);
         color: white;
+        font-weight: bold;
         border: none;
-        transition: 0.3s;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
+    
     .stButton>button:hover {
-        background-color: #fbbf24;
-        color: #1e3a8a;
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        transform: scale(1.02);
     }
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
+
+    /* تحسين النصوص */
+    .big-title {
+        color: #1e3a8a;
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 0px;
+    }
+    
+    .subtitle {
+        color: #64748b;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# --- إدارة البيانات والحالة ---
-if 'step' not in st.session_state:
-    st.session_state.step = 1
-if 'pending_requests' not in st.session_state:
-    st.session_state.pending_requests = []
-if 'approved_companies' not in st.session_state:
-    st.session_state.approved_companies = []
+# --- إدارة حالة التطبيق ---
+if 'step' not in st.session_state: st.session_state.step = 1
+if 'pending_requests' not in st.session_state: st.session_state.pending_requests = []
+if 'approved_companies' not in st.session_state: st.session_state.approved_companies = []
 
 def next_step(): st.session_state.step += 1
 def prev_step(): st.session_state.step -= 1
 def restart(): st.session_state.step = 1
 
-# --- الهيدر الرئيسي ---
-st.markdown("<h1 style='text-align: center;'>☀️ منصة سولار إيراك الذكية</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #64748b;'>تصميم منظومات الطاقة الشمسية بدقة واحترافية</p>", unsafe_allow_html=True)
-st.write("---")
+# --- الهيدر الرئيسي مع صورة ---
+st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+st.image("https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", caption="مستقبل الطاقة بين يديك")
+st.markdown("<h1 class='big-title'>سولار إيراك</h1>", unsafe_allow_html=True)
+st.markdown("<p class='subtitle'>المساعد الذكي لتصميم منظومات الطاقة الشمسية في العراق</p>", unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
 # القائمة الجانبية
-st.sidebar.markdown("<h2 style='text-align: right;'>القائمة الرئيسية</h2>", unsafe_allow_html=True)
-app_mode = st.sidebar.radio("", ["📱 حاسبة المنظومة", "📝 انضم كشركة", "🔐 الإدارة"], label_visibility="collapsed")
+app_mode = st.sidebar.selectbox("القائمة الرئيسية", ["الحاسبة الذكية", "انضمام الشركات", "إدارة المنصة"])
 
-# 1. الحاسبة المتطورة
-if app_mode == "📱 حاسبة المنظومة":
-    progress = (st.session_state.step - 1) / 3
-    st.progress(progress)
-
-    if st.session_state.step == 1:
-        st.markdown("### المرحلة الأولى: أحمال النهار")
-        st.info("💡 ملاحظة: أحمال النهار هي التي تعمل مباشرة من الألواح.")
-        st.session_state.day_amp = st.number_input("كم أمبير تحتاج بالنهار؟", min_value=0.0, value=10.0)
-        st.button("الخطوة التالية ➡️", on_click=next_step)
-
-    elif st.session_state.step == 2:
-        st.markdown("### المرحلة الثانية: أحمال الليل")
-        st.info("🌙 هذه الأحمال سيتم سحبها من البطاريات التي شُحنت نهاراً.")
-        st.session_state.night_amp = st.number_input("كم أمبير تحتاج بالليل؟", min_value=0.0, value=5.0)
-        col_prev, col_next = st.columns(2)
-        col_prev.button("⬅️ السابق", on_click=prev_step)
-        col_next.button("التالي ➡️", on_click=next_step)
-
-    elif st.session_state.step == 3:
-        st.markdown("### المرحلة الثالثة: وقت التشغيل والعتاد")
-        st.session_state.hours = st.select_slider("كم ساعة تشغيل ليلية مطلوبة؟", options=[2, 4, 6, 8, 10, 12], value=4)
-        st.session_state.panel_cap = st.selectbox("قدرة اللوح المستخدم (وات):", [550, 580, 615, 650], index=2)
+# --- 1. الحاسبة الذكية ---
+if app_mode == "الحاسبة الذكية":
+    st.progress((st.session_state.step - 1) / 3)
+    
+    with st.container():
+        st.markdown("<div class='main-card'>", unsafe_allow_html=True)
         
-        col_prev, col_next = st.columns(2)
-        col_prev.button("⬅️ السابق", on_click=prev_step)
-        col_next.button("توليد التقرير النهائي ✨", on_click=next_step)
+        if st.session_state.step == 1:
+            st.markdown("### ⚡ أحمال النهار")
+            st.write("أدخل مجموع الأمبيرات التي تعمل وقت ذروة الشمس:")
+            st.session_state.day_amp = st.number_input("أمبير النهار (AC)", min_value=0.0, value=10.0)
+            st.button("الانتقال للخطوة التالية", on_click=next_step)
 
-    elif st.session_state.step == 4:
-        st.markdown("### 📊 المواصفات الفنية لمنظومتك")
+        elif st.session_state.step == 2:
+            st.markdown("### 🌙 أحمال الليل")
+            st.write("أدخل مجموع الأمبيرات المطلوبة من البطاريات:")
+            st.session_state.night_amp = st.number_input("أمبير الليل (AC)", min_value=0.0, value=5.0)
+            col1, col2 = st.columns(2)
+            col1.button("السابق", on_click=prev_step)
+            col2.button("التالي", on_click=next_step)
+
+        elif st.session_state.step == 3:
+            st.markdown("### ⚙️ إعدادات النظام")
+            st.session_state.hours = st.select_slider("ساعات تشغيل البطارية", options=[2, 4, 6, 8, 12], value=4)
+            st.session_state.panel_cap = st.selectbox("قدرة اللوح (وات)", [550, 585, 615, 670], index=2)
+            col1, col2 = st.columns(2)
+            col1.button("السابق", on_click=prev_step)
+            col2.button("تحليل النتائج", on_click=next_step)
+
+        elif st.session_state.step == 4:
+            st.markdown("### 📊 نتائج التصميم الفني")
+            
+            # حسابات دقيقة (كفاءة 80%)
+            panels = round((st.session_state.day_amp * 230) / (st.session_state.panel_cap * 0.8))
+            batteries = round((st.session_state.night_amp * 230 * st.session_state.hours) / (48 * 0.8))
+
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown(f"<div class='stat-box'><h4>الألواح المطلوبة</h4><h2>{max(1, panels)}</h2><p>لوح سعة {st.session_state.panel_cap}W</p></div>", unsafe_allow_html=True)
+            with c2:
+                st.markdown(f"<div class='stat-box'><h4>خزن البطاريات</h4><h2>{batteries} Ah</h2><p>نظام ليثيوم 48V</p></div>", unsafe_allow_html=True)
+            
+            st.write("---")
+            st.markdown("### 🏢 الشركات المقترحة للتنفيذ")
+            if not st.session_state.approved_companies:
+                st.info("سيتم إدراج الشركات المعتمدة هنا قريباً.")
+            for co in st.session_state.approved_companies:
+                with st.expander(f"📍 {co['الاسم']} - {co['المدينة']}"):
+                    st.write(co['الوصف'])
+                    st.link_button("اطلب تسعيرة الآن", f"https://wa.me/{co['هاتف']}")
+
+            st.button("إجراء حساب جديد", on_click=restart)
         
-        # الحسابات
-        watt_day = st.session_state.day_amp * 230
-        effective_panel = st.session_state.panel_cap * 0.8
-        needed_panels = round(watt_day / (effective_panel * 1.0))
-        
-        watt_night = st.session_state.night_amp * 230 * st.session_state.hours
-        needed_battery = round(watt_night / (48 * 0.8))
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        # عرض النتائج بشكل بطاقات
-        st.markdown(f"""
-            <div class="result-card">
-                <h4 style='color: #1e3a8a;'>📦 عدد الألواح المطلوبة</h4>
-                <p style='font-size: 24px; font-weight: bold;'>{max(1, needed_panels)} لوح (سعة {st.session_state.panel_cap} وات)</p>
-            </div>
-            <div class="result-card">
-                <h4 style='color: #1e3a8a;'>🔋 سعة البطاريات (ليثيوم)</h4>
-                <p style='font-size: 24px; font-weight: bold;'>{needed_battery} Ah (نظام 48 فولت)</p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        st.write("---")
-        st.subheader("🏢 شركات تنفيذ معتمدة")
-        if not st.session_state.approved_companies:
-            st.warning("جاري تحديث قائمة الشركات المعتمدة حالياً.")
-        for co in st.session_state.approved_companies:
-            with st.expander(f"⭐ {co['الاسم']} - {co['المدينة']}"):
-                st.write(co['الوصف'])
-                st.link_button("💬 اطلب عرض سعر الآن", f"https://wa.me/{co['هاتف']}")
-
-        st.button("🔄 ابدأ من جديد", on_click=restart)
-
-# 2. طلب الانضمام
-elif app_mode == "📝 انضم كشركة":
-    st.markdown("### تسجيل شركة جديدة")
-    with st.form("company_form"):
-        name = st.text_input("اسم الشركة")
-        city = st.text_input("المدينة / المحافظة")
-        phone = st.text_input("رقم الواتساب (مثال: 9647XXXXXXXX)")
-        desc = st.text_area("نبذة عن الخدمات")
-        if st.form_submit_button("إرسال الطلب"):
+# --- 2. انضمام الشركات ---
+elif app_mode == "انضمام الشركات":
+    st.markdown("<div class='main-card'>", unsafe_allow_html=True)
+    st.markdown("### سجل شركتك في المنصة")
+    with st.form("co_form"):
+        name = st.text_input("اسم الشركة الرسمي")
+        city = st.text_input("المحافظة")
+        phone = st.text_input("رقم الواتساب (بالصيغة الدولية)")
+        desc = st.text_area("نبذة مختصرة عن مشاريعكم")
+        if st.form_submit_button("إرسال طلب الانضمام"):
             st.session_state.pending_requests.append({"الاسم": name, "المدينة": city, "هاتف": phone, "الوصف": desc})
-            st.success("تم استلام طلبك! سيظهر للجمهور بعد موافقة الإدارة.")
+            st.success("تم استلام الطلب بنجاح.")
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# 3. لوحة الإدارة
-elif app_mode == "🔐 الإدارة":
-    st.markdown("### إدارة المحتوى")
-    password = st.text_input("كلمة المرور الإدارية", type="password")
-    if password == "1234":
-        st.success("أهلاً بك أيها المدير")
-        if not st.session_state.pending_requests:
-            st.info("لا توجد طلبات معلقة حالياً.")
-        for i, req in enumerate(st.session_state.pending_requests):
-            st.markdown(f"**طلب من: {req['الاسم']}**")
-            col_acc, col_rej = st.columns(2)
-            if col_acc.button(f"✅ قبول", key=f"ok_{i}"):
-                st.session_state.approved_companies.append(req)
-                st.session_state.pending_requests.pop(i)
-                st.rerun()
-            if col_rej.button(f"❌ رفض", key=f"rj_{i}"):
+# --- 3. الإدارة ---
+elif app_mode == "إدارة المنصة":
+    pw = st.text_input("رمز الدخول الإداري", type="password")
+    if pw == "1234":
+        st.write("طلبات الشركات بانتظار الموافقة:")
+        for i, r in enumerate(st.session_state.pending_requests):
+            st.write(f"**{r['الاسم']}**")
+            if st.button("قبول", key=f"a_{i}"):
+                st.session_state.approved_companies.append(r)
                 st.session_state.pending_requests.pop(i)
                 st.rerun()
